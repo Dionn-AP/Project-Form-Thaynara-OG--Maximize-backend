@@ -1,90 +1,143 @@
-const User = require('../models/Users');
 const bcrypt = require('bcrypt');
+const transporterMail = require("../service/smtp");
+const knex = require('../service/connectionDB');
 
-class Usercontroller {
-    async createuser(req, res) {
-        const { name, email, password } = req.body;
+const createuser = async (req, res) => {
+    const { name, email, password } = req.body;
 
-        const userExists = await User.findOne({ email: email });
+    try {
 
-        if (userExists) {
-            return res.status(422).json({ message: "Por favor, utilize outro e-mail" });
+        const emailExists = await knex('users')
+            .where({ email })
+            .first();
+
+        if (emailExists) {
+            return res.status(400).json({ message: "Este email ja foi cadastrado. Favor escolha outro email" })
+        };
+
+        const hashPass = await bcrypt.hash(password, 10);
+
+        const dataUser = await knex('users')
+            .insert({
+                name,
+                email,
+                password: hashPass
+            });
+
+        const newUser = await knex('users')
+            .where({ email })
+            .first();
+
+        if (!newUser) {
+            return res.status(400).json({ message: "Não foi possivel cadastrar o usuário" });
         }
 
-        const salt = await bcrypt.genSalt(12);
-        const passwordHash = await bcrypt.hash(password, salt);
+        return res.status(201).json({
+            id: newUser.id,
+            nome: newUser.name,
+            email: newUser.email
+        });
 
-        const dataUser = {
-            name,
-            email,
-            password: passwordHash
-        }
+    } catch (error) {
+        return res.status(400).json(error.message);
+    }
+};
 
-        try {
-            await User.create(dataUser);
-            return res.status(201).json({ message: "Cadastro concluído com sucesso" });
-        } catch (error) {
-            return res.status(404).json(error);
-        }
+const getuser = async (req, res) => {
+    return res.status(200).json({
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email
+    });
+};
+
+const replaymessage = async (req, res) => {
+    const { message, receiver_email, id_message } = req.body;
+    const { user } = req;
+
+    if (!message || !receiver_email) {
+        return res.status(400).json({ message: "Você esta tentando enviar uma resposta em branco ou não informou o destinatário correto" });
     }
 
-    async getuser(req, res) {
-        const id = req.userId;
-
-        try {
-            const user = await User.findById(id, '-password');
-
-            if (!user) {
-                return res.status(422).json({ message: 'O usuário não foi encontrado!' });
-            }
-
-            res.status(200).json(user);
-        } catch (error) {
-            return res.status(422).json(error);
-        }
+    const dataReplay = {
+        sender_name: user.name,
+        sender_email: user.email,
+        receiver_email,
+        message
     }
 
-    async updateuser(req, res) {
-        const id = req.userId;
-        const { name, email } = req.body;
+    try {
 
-        const user = { name, email }
+        const receiverExist = await knex("messages").where({ id: id_message }).first();
 
-        try {
-            const updatedUser = await User.updateOne({ _id: id }, user);
-
-            if (updatedUser.matchedCount === 0) {
-                return res.status(422).json({ message: 'Nenhuma dado foi atualizado' });
-            }
-
-            res.status(200).json(user);
-        } catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-
-    async delete(req, res) {
-        const { id } = req.params;
-
-        if (id !== req.userId) {
-            return res.send({ message: "Você não pode apagar os dados de outros usuários" });
+        if (!receiverExist) {
+            return res.status(400).json({ message: "Mensagem não enviada" });
         }
 
-        const user = await User.findOne({ _id: id });
+        const dataEmail = {
+            from: `${user.name} ${user.email}`,
+            to: receiver_email,
+            subject: `Oi ${receiverExist.sender_name}. É um prazer ter você aqui`,
+            text: `${message}`
+        };
 
-        if (!user) {
-            res.status(422).json({ message: 'O usuário não foi encontrado!' });
-            return
+        transporterMail.sendMail(dataEmail);
+
+        const replay = await knex("replay").insert(dataReplay);
+
+        if (replay.rowCount < 1) {
+            return res.status(400).json({ message: "Mensagem não enviada" });
         }
 
-        try {
-            await User.deleteOne({ _id: id });
-
-            res.status(200).json({ message: "Usuário removido com sucesso." });
-        } catch (error) {
-            return res.status(500).json(error);
-        }
+        return res.status(200).json({ message: "Mensagem enviada com sucesso" });
+    } catch (error) {
+        return res.status(400).json(error.message);
     }
 }
 
-export default new Usercontroller();
+
+const updateuser = async (req, res) => {
+    const { user } = req;
+    const { name, email, password } = req.body;
+
+    try {
+
+        const emailExists = await knex('users')
+            .where({ email })
+            .first();
+
+        if (emailExists) {
+            if (emailExists.id !== user.id) {
+                return res.status(400).json({
+                    message: "O e-mail informado já está sendo utilizado por outro usuário"
+                })
+            }
+        };
+
+        const dataUpdateUser = {
+            name: !name ? user.name : name,
+            email: !email ? user.email : email,
+            password: !password ? user.password : await bcrypt.hash(password, 10)
+        }
+
+        const userUpdated = await knex('users')
+            .update(dataUpdateUser)
+            .where({ id: user.id }).returning("*");
+
+        if (!userUpdated) {
+            return res.status(400).json({ message: "Não foi possível atualizar os dados do usuario" });
+        }
+
+        return res.status(200).json({ message: "Dados atualizados com sucesso" });
+
+    } catch (error) {
+        return res.status(400).json(error.message);
+    }
+};
+
+module.exports = {
+    createuser,
+    getuser,
+    updateuser,
+    replaymessage
+}
