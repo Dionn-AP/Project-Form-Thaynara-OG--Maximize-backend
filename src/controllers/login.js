@@ -39,7 +39,7 @@ async function authenticate(req, res) {
         const secret = process.env.SECRET_KEY;
         const token = jwt.sign({ id: userFound.id, }, `${secret}`, { expiresIn: '5h' });
 
-        res.status(200).json({ dataUser, token })
+        res.status(200).json({ ...dataUser, token })
     } catch (error) {
         return res.status(500).json(error);
     }
