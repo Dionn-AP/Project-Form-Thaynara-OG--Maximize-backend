@@ -1,27 +1,33 @@
-import { Request, Response, NextFunction } from 'express';
 const jwt = require('jsonwebtoken');
+const knex = require('../service/connectionDB');
 
-export default function authMiddleware(
-    req, res, next
-) {
+const authMiddleware = async (req, res, next) => {
     const { authorization } = req.headers;
 
     if (!authorization) {
-        return res.status(401).json({ message: "Usuário não autenticado." });
+        return res.status(401).json({ message: "Usuário não autenticado" });
     }
-
-    const token = authorization.replace('Bearer', '').trim();
 
     try {
-        const secret = process.env.SECRET_KEY;
-        const data = jwt.verify(token, `${secret}`);
+        const token = authorization.replace('Bearer ', "").trim();
 
-        const { id } = data;
+        const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
-        req.userId = id;
+        const userLogged = await knex('users')
+            .where({ id })
+            .first();
 
-        return next();
-    } catch (error) {
-        return res.status(500).json(error);
+        if (!userLogged) {
+            return res.status(404).json({ "mensagem": "Usuário não encontrado." })
+        }
+
+        req.user = userLogged;
+
+        next();
+
+    } catch {
+        return res.status(400).json({message: "O token é inválido."})
     }
-}
+};
+
+module.exports = authMiddleware;
