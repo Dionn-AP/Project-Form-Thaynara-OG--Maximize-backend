@@ -1,7 +1,7 @@
 const express = require('express');
 
 const { createuser, getuser, replaymessage } = require('./controllers/user');
-const { sendemail, viewmessages, messageread } = require('./controllers/sentEmails');
+const { sendemail, viewmessages, messageread } = require('./controllers/sendEmails');
 const { authenticate } = require('./controllers/login');
 const MiddlewareLogin = require('./middleware/middlewareLogin');
 
