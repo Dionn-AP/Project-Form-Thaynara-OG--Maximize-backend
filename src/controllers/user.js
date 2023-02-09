@@ -32,11 +32,7 @@ const createuser = async (req, res) => {
             return res.status(400).json({ message: "Não foi possivel cadastrar o usuário" });
         }
 
-        return res.status(201).json({
-            id: newUser.id,
-            nome: newUser.name,
-            email: newUser.email
-        });
+        return res.status(201).json({ message: "Usuário cadastrado com sucesso" });
 
     } catch (error) {
         return res.status(400).json(error.message);
