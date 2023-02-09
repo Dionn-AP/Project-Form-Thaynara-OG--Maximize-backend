@@ -37,10 +37,10 @@ async function sendemail(req, res) {
             })
 
         if (!messageSent) {
-            return res.status(400).json({ message: "Mesagem não enviada" });
+            return res.status(400).json({ message: "Mensagem não enviada" });
         }
 
-        return res.status(201).json({ message: "Menssagem enviada com sucesso" });
+        return res.status(201).json({ message: "Mensagem enviada com sucesso" });
     } catch (error) {
         return res.status(422).json(error);
     }
@@ -52,7 +52,7 @@ async function viewmessages(req, res) {
         const allMessages = await knex('messages').returning("*");
 
         if (allMessages.lenght === 0) {
-            return res.status(400).json({ message: "Você não possui nenhuma messagem a ser exibida" });
+            return res.status(400).json({ message: "Você não possui nenhuma mensagem a ser exibida" });
         }
 
         return res.status(201).json(allMessages);
