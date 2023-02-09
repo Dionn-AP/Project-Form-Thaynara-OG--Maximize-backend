@@ -57,4 +57,20 @@ Eu utilizei um *query-builder* para bancos relacionais chamado **[Knex](https://
 Eu fiz o deploy da aplicação em um servidor que conheci a pouco tempo, mas que tem me atendido bem, o **[Render](https://render.com/)**. Eu já tenho 3 aplicações rodando nele. Tem um plano *free* limitado, e dar pra testar aplicações em desenvolvimento tranquilamente. É simples de configurar, só demora um pouco o processo de build e deploy.
 
 ---
+
+## Melhorias
+### Editar dados do usuário
+Será possível editar o *nome, email e senha* do usuário.
+
+### Notificações
+Quando o usuário estiver logado e receber um email, uma notificação aparecerá no navegador.
+
+### Design System
+Melhorar o estilo de exibição das mensagens de erro e sucesso e carregamento de dados, bem como o tipo de tabela utilizado.
+
+### Design de telas
+Recriar o *design* das páginas de **login** e **inbox**.
+
+---
+---
 ## **Fim...** 
