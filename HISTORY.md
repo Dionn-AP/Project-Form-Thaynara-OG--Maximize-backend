@@ -1,4 +1,4 @@
-# Histórico do Desenvolvimento do Projeto (Front/Backend)
+# Histórico do Desenvolvimento do Projeto (Frontend/Backend)
 
 
 ## **Frontend**
