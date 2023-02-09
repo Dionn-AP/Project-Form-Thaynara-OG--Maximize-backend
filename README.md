@@ -51,9 +51,7 @@ Essa rota posibilita criar um novo usuário através do fornecimento de nome, em
 #### Response (201)
 ```
 {
-    "name": "Fulano de Tal",
-    "email": "fulanodetal@email.com",
-    "password": "12345678"
+    message: "Usuário cadastrado com sucesso"
 }
 
 
@@ -107,8 +105,8 @@ Essa rota permite logar no sistema, informando email e senha cadastrados anterio
 {
     
     "id": 1,
-    "name": "Thay OG",
-    "email": "thayog@email.com"
+    "name": "Fulano de Tal",
+    "email": "fulanodetal@email.com"
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjc1ODgyODgzLCJleHAiOjE2NzU5MDA4ODN9.hZMnv0GdrYtuRVCQgEdySdDps2Vqx_TfNOIyiv04qbw"
 }
 
@@ -130,7 +128,7 @@ Essa rota permite logar no sistema, informando email e senha cadastrados anterio
 }
 ```
 
-#### Error (422) - Email e senha não informado na requisição
+#### Error (422) - Email e senha não informados na requisição
 
 ```
 {
@@ -219,7 +217,7 @@ Nessa rota, o usuário poderá enviar um email, que seria consumido por um forms
 #### Response (201)
 ```
 {
-    "message": "Menssagem enviada com sucesso"
+    "message": "Mensagem enviada com sucesso"
 }
 ```
 
@@ -241,7 +239,7 @@ Nessa rota, o usuário poderá enviar um email, que seria consumido por um forms
 
 ```
 {
-    "message": "Mesagem não enviada"
+    "message": "Mensagem não enviada"
 }
 ```
 
@@ -283,13 +281,13 @@ Sem dados enviado no body da requisição
 }
 ```
 
-#### Não exatamente um *erro*
+#### Não é exatamente um *erro*
 
 #### Error (404) - Quando não há mensagens recebidas a serem resgatadas na requisição
 
 ```
 {
-    "message": "Você não possui nenhuma messagem a ser exibida"
+    "message": "Você não possui nenhuma mensagem a ser exibida"
 }
 ```
 
@@ -314,7 +312,7 @@ Exemplo: https://contact-forms-qgj8.onrender.com/messageread/1
 }
 ```
 
-### Possíveis erros tentar mudar o *status* da mensagem para *lida (true)* 
+### Possíveis erros ao tentar mudar o *status* da mensagem para *lida (true)* 
 #### Error (400) - Erro ao carregar os dados solicitados
 
 ```
@@ -378,7 +376,7 @@ Nessa rota é possível responder à uma mensagem recebida. Necessita de autenti
 
 
 
-### Possíveis erros tentar responder uma mensagem recebia 
+### Possíveis erros ao tentar responder uma mensagem recebia 
 #### Error (400) - Erro ao tentar enviar a mensagem em branco
 
 ```
